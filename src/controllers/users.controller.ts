@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 
 import { paramMissingError } from '../shared/constants';
 import { wait } from '../shared/utils';
+import UserModel from '../models/user/UserModel';
 
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
@@ -14,28 +15,9 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @returns
  */
 export async function getAllUsers(req: Request, res: Response) {
-  await wait(500);
+  const users = await UserModel.find({});
 
-  return res.status(OK).json({});
-}
-
-/**
- * Add one user.
- *
- * @param req
- * @param res
- * @returns
- */
-export async function addOneUser(req: Request, res: Response) {
-  const { user } = req.body;
-  if (!user) {
-    return res.status(BAD_REQUEST).json({
-      error: paramMissingError,
-    });
-  }
-  await wait(500);
-
-  return res.status(CREATED).end();
+  return res.status(OK).json({ users });
 }
 
 /**
@@ -73,8 +55,5 @@ export async function deleteOneUser(req: Request, res: Response) {
 }
 
 export async function getOneUser(req: Request, res: Response) {
-  const { id } = req.params;
-  await wait(500);
-
-  return res.status(OK).end();
+  return res.status(400);
 }
