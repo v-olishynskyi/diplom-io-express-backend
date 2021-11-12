@@ -6,8 +6,9 @@ import express, { NextFunction, Request, Response } from 'express';
 import StatusCodes from 'http-status-codes';
 import 'express-async-errors';
 import logger from './shared/Logger';
-import userRouter from './routes/userRouter';
-import authRouter from './routes/authRouter';
+import userRouter from './routes/user.router';
+import authRouter from './routes/auth.router';
+import markerRouter from './routes/marker.router';
 
 const app = express();
 const { BAD_REQUEST } = StatusCodes;
@@ -31,8 +32,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Add APIs
-app.use('/users', userRouter);
-app.use('/auth', authRouter);
+app.use('/api/users', userRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/markers', markerRouter);
 
 // Print API errors
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
