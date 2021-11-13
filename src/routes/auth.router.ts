@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { signOut, singIn, singUp } from '../controllers/auth.controller';
+import { authController } from '../controllers/auth.controller';
 import { asyncMiddleware } from '../middlewares/asyncMiddleware';
 
 const authRouter: Router = Router();
 
-authRouter.post('/sign-in', asyncMiddleware(singIn));
-authRouter.post('/sign-up', asyncMiddleware(singUp));
-authRouter.get('/sign-out', asyncMiddleware(signOut));
+authRouter.post('/sign-in', asyncMiddleware(authController.signIn));
+authRouter.post('/sign-up', asyncMiddleware(authController.signUp));
+authRouter.get('/sign-out', asyncMiddleware(authController.signOut));
 
 export default authRouter;
