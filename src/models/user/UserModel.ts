@@ -13,6 +13,7 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ['male', 'female', ''],
     },
+    email_verified: { type: Boolean },
     // @ts-ignore
     markers: [{ type: Types.ObjectId, ref: 'Marker' }],
   },

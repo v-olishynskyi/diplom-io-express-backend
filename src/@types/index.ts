@@ -15,6 +15,7 @@ export interface IUser {
   // markers: [IMarker] | any;
 
   gender: Gender;
+  email_verified: boolean;
 }
 export interface IMarker {
   latitude: number;
