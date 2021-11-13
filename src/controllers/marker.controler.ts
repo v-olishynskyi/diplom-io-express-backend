@@ -1,5 +1,6 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
+import { Collection, Types } from "mongoose";
 
 import { paramMissingError } from "../shared/constants";
 import { wait } from "../shared/utils";
@@ -116,7 +117,24 @@ export async function deleteOneMarker(req: Request, res: Response) {
 
 export async function getOneMarker(req: Request, res: Response) {
   const { id } = req.params;
-  await wait(500);
-
-  return res.status(OK).end();
+  MarkerModel.findOne({ _id: new Types.ObjectId(id) }).exec(
+    (err, collections) => {
+      console.log("err", err);
+      if (err) {
+        res.status(400);
+        res.send(err);
+      } else {
+        if(collections) {
+          res.send(collections);
+        } else {
+          res.status(404);
+          res.send({
+            error: "User not found"
+          });
+          
+        }
+      }
+      
+    }
+  );
 }
