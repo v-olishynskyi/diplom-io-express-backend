@@ -110,16 +110,32 @@ export async function updateOneMarker(req: Request, res: Response) {
  */
 export async function deleteOneMarker(req: Request, res: Response) {
   const { id } = req.params;
-
-  await wait(500);
-  return res.status(OK).end();
+  MarkerModel.remove({ _id: new Types.ObjectId(id) }).exec(
+    (err, collections) => {
+      if (err) {
+        res.status(400);
+        res.send(err);
+      } else {
+        if(collections?.deletedCount === 0) {
+          res.status(404);
+          res.send({
+            error: "Marker not found"
+          });
+        } else {
+          res.status(200).send({
+            message: 'Marker successfully deleted'
+          });
+        }
+      }
+      
+    }
+  );
 }
 
 export async function getOneMarker(req: Request, res: Response) {
   const { id } = req.params;
   MarkerModel.findOne({ _id: new Types.ObjectId(id) }).exec(
     (err, collections) => {
-      console.log("err", err);
       if (err) {
         res.status(400);
         res.send(err);
@@ -129,7 +145,7 @@ export async function getOneMarker(req: Request, res: Response) {
         } else {
           res.status(404);
           res.send({
-            error: "User not found"
+            error: "Marker not found"
           });
           
         }
