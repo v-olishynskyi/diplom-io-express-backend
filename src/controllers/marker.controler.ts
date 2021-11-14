@@ -1,156 +1,162 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
-import { Collection, Types } from "mongoose";
 
 import { paramMissingError } from "../shared/constants";
-import { wait } from "../shared/utils";
 import MarkerModel from "src/models/marker/MarkerModel";
 
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
-/**
- * Get all markerks.
- *
- * @param req
- * @param res
- * @returns
- */
-export async function getAllMarkers(req: Request, res: Response) {
-  const markers = await MarkerModel.find().populate("owner");
-  return res.json({
-    status: "success",
-    data: { markers },
-  });
-}
-
-/**
- * Get markerks.
- *
- * @param req
- * @param res
- * @returns
- */
-export async function getMarkers(req: Request, res: Response) {
-  const markers = await MarkerModel.find().populate("owner");
-  let page = 1;
-  const per_page = 10;
-  const pages = Math.ceil(markers.length / per_page);
-  const total = markers.length;
-  if (
-    typeof req?.query?.page === "string" &&
-    Number.parseInt(req?.query?.page)
-  ) {
-    page = Number.parseInt(req.query.page);
-  }
-  const markersFromPage = markers.slice((page - 1) * per_page, page * per_page);
-  const pager = {
-    count: markersFromPage.length,
-    total,
-    per_page,
-    page,
-    pages,
-  };
-
-  return res.json({
-    status: "success",
-    data: { markers: markersFromPage },
-    meta: {
-      pager,
-    },
-  });
-}
-
-/**
- * Add one marker.
- *
- * @param req
- * @param res
- * @returns
- */
-export async function addOneMarker(req: Request, res: Response) {
-  const { latitude, longitude, name, description, owner } = req.body;
-  const marker = await MarkerModel.create({
-    latitude,
-    longitude,
-    name,
-    description,
-    owner,
-  });
-  const result = await marker.save();
-
-  return res.send({ status: "success", data: result });
-}
-
-/**
- * Update one marker.
- *
- * @param req
- * @param res
- * @returns
- */
-export async function updateOneMarker(req: Request, res: Response) {
-  const { marker } = req.body;
-  if (!marker) {
-    return res.status(BAD_REQUEST).json({
-      error: paramMissingError,
+export const MarkerController = {
+  all: async (req: Request, res: Response) => {
+    const markers = await MarkerModel.find().populate("owner");
+    return res.json({
+      status: "success",
+      data: { markers },
     });
-  }
-  marker.id = Number(marker.id);
-  await wait(500);
-
-  return res.status(OK).end();
-}
-
-/**
- * Delete one marker.
- *
- * @param req
- * @param res
- * @returns
- */
-export async function deleteOneMarker(req: Request, res: Response) {
-  const { id } = req.params;
-  MarkerModel.remove({ _id: new Types.ObjectId(id) }).exec(
-    (err, collections) => {
-      if (err) {
-        res.status(400);
-        res.send(err);
-      } else {
-        if(collections?.deletedCount === 0) {
-          res.status(404);
-          res.send({
-            error: "Marker not found"
-          });
-        } else {
-          res.status(200).send({
-            message: 'Marker successfully deleted'
-          });
-        }
-      }
-      
+  },
+  allWithPagination: async (req: Request, res: Response) => {
+    const markers = await MarkerModel.find().populate("owner");
+    let page = 1;
+    const per_page = 10;
+    const pages = Math.ceil(markers.length / per_page);
+    const total = markers.length;
+    if (
+      typeof req?.query?.page === "string" &&
+      Number.parseInt(req?.query?.page)
+    ) {
+      page = Number.parseInt(req.query.page);
     }
-  );
-}
+    const markersFromPage = markers.slice(
+      (page - 1) * per_page,
+      page * per_page
+    );
+    const pager = {
+      count: markersFromPage.length,
+      total,
+      per_page,
+      page,
+      pages,
+    };
 
-export async function getOneMarker(req: Request, res: Response) {
-  const { id } = req.params;
-  MarkerModel.findOne({ _id: new Types.ObjectId(id) }).exec(
-    (err, collections) => {
-      if (err) {
-        res.status(400);
-        res.send(err);
-      } else {
-        if(collections) {
-          res.send(collections);
-        } else {
-          res.status(404);
-          res.send({
-            error: "Marker not found"
-          });
-          
-        }
+    return res.json({
+      status: "success",
+      data: { markers: markersFromPage },
+      meta: {
+        pager,
+      },
+    });
+  },
+  find: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(BAD_REQUEST).json({
+          error: paramMissingError,
+        });
       }
-      
+
+      const marker = await MarkerModel.findById(id).populate("owner");
+
+      if (!marker) {
+        return res.status(404).json({
+          // status: ResponseStatus.FAILED,
+          error: {
+            code: 404,
+            message: "Marker not found",
+          },
+        });
+      }
+
+      return res.status(OK).json({ marker });
+    } catch (error) {
+      res.status(500).json({
+        // status: ResponseStatus.FAILED,
+        code: 500,
+        error,
+      });
     }
-  );
-}
+  },
+  create: async (req: Request, res: Response) => {
+    const { latitude, longitude, name, description, owner } = req.body;
+    const marker = new MarkerModel({
+      latitude,
+      longitude,
+      name,
+      description,
+      owner,
+    });
+    const result = await marker.save();
+
+    return res.status(CREATED).send({ status: "success", data: result });
+  },
+  edit: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { latitude, longitude, name, description, owner } = req.body;
+      if (!id) {
+        return res.status(BAD_REQUEST).json({
+          error: paramMissingError,
+        });
+      }
+
+      const marker = await MarkerModel.findByIdAndUpdate(id, {
+        $set: {
+          latitude,
+          longitude,
+          name,
+          description,
+          owner,
+        },
+      });
+
+      if (!marker) {
+        return res.status(404).json({
+          // status: ResponseStatus.FAILED,
+          error: {
+            code: 404,
+            message: "Marker not found",
+          },
+        });
+      }
+
+      return res.status(OK).json({ status: "success" });
+    } catch (error) {
+      res.status(500).json({
+        // status: ResponseStatus.FAILED,
+        code: 500,
+        error,
+      });
+    }
+  },
+  delete: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(BAD_REQUEST).json({
+          error: paramMissingError,
+        });
+      }
+      const remove = await MarkerModel.findByIdAndRemove(id).populate("owner");
+
+      if (!remove) {
+        return res.status(404).json({
+          // status: ResponseStatus.FAILED,
+          error: {
+            code: 404,
+            message: "Marker not found",
+          },
+        });
+      }
+
+      return res.status(200).json({ status: "success", data: { remove } });
+    } catch (error) {
+      res.status(500).json({
+        // status: ResponseStatus.FAILED,
+        code: 500,
+        error,
+      });
+    }
+  },
+};
