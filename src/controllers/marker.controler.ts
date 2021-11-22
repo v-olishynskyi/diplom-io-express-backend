@@ -2,8 +2,8 @@ import StatusCodes from 'http-status-codes';
 import { Request, Response } from 'express';
 
 import { paramMissingError, ResponseStatus } from '../shared/constants';
-import MarkerModel from 'src/models/marker/MarkerModel';
 import UserModel from '../models/user/UserModel';
+import MarkerModel from '../models/marker/MarkerModel';
 
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 

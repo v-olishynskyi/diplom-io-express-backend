@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const marker_controler_1 = require("../controllers/marker.controler");
+const asyncMiddleware_1 = require("../middlewares/asyncMiddleware");
+const markerRouter = (0, express_1.Router)();
+markerRouter.get('/markers/', (0, asyncMiddleware_1.asyncMiddleware)(marker_controler_1.MarkerController.all));
+markerRouter.get('/markers/get-markers/', (0, asyncMiddleware_1.asyncMiddleware)(marker_controler_1.MarkerController.allWithPagination));
+markerRouter.get('/markers/:id', (0, asyncMiddleware_1.asyncMiddleware)(marker_controler_1.MarkerController.find));
+markerRouter.post('/markers/', (0, asyncMiddleware_1.asyncMiddleware)(marker_controler_1.MarkerController.create));
+markerRouter.patch('/markers/:id', (0, asyncMiddleware_1.asyncMiddleware)(marker_controler_1.MarkerController.update));
+markerRouter.delete('/markers/:id', (0, asyncMiddleware_1.asyncMiddleware)(marker_controler_1.MarkerController.delete));
+exports.default = markerRouter;
