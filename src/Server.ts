@@ -34,6 +34,10 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Add APIs
+
+app.use('/api/test', (req, res) => {
+  return res.send('qweqweqwewqeqw').end();
+});
 app.use('/api/', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/', markerRouter);
