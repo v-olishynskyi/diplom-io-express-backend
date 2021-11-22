@@ -105,7 +105,7 @@ export const MarkerController = {
       return res.status(500).json({ status: ResponseStatus.FAILED, error });
     }
   },
-  edit: async (req: Request, res: Response) => {
+  update: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const { latitude, longitude, name, description, owner } = req.body;

@@ -4,15 +4,17 @@ import { asyncMiddleware } from '../middlewares/asyncMiddleware';
 
 const userRouter: Router = Router();
 
-userRouter.get('/get-all-users', asyncMiddleware(userControllers.getAllUsers));
+userRouter.get('/users/', asyncMiddleware(userControllers.getAllUsers));
+userRouter.get('/users/:id', asyncMiddleware(userControllers.getUserById));
 userRouter.get(
-  '/get-user-by-id/:id',
-  asyncMiddleware(userControllers.getUserById)
+  '/users/get-user-by-email/:email',
+  asyncMiddleware(userControllers.getUserByEmail)
 );
-userRouter.put('/edit-user', asyncMiddleware(userControllers.editUser));
-userRouter.delete(
-  '/delete-user/:id',
-  asyncMiddleware(userControllers.deleteUserById)
+userRouter.get(
+  '/users/get-user-by-username/:username',
+  asyncMiddleware(userControllers.getUserByUsername)
 );
+userRouter.put('/users/:id', asyncMiddleware(userControllers.update));
+userRouter.delete('/users/:id', asyncMiddleware(userControllers.delete));
 
 export default userRouter;

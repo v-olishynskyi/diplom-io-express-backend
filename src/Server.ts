@@ -1,7 +1,7 @@
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import cors from 'cors'
+import cors from 'cors';
 
 import express, { NextFunction, Request, Response } from 'express';
 import StatusCodes from 'http-status-codes';
@@ -21,7 +21,7 @@ const { BAD_REQUEST } = StatusCodes;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors())
+app.use(cors());
 
 // Show routes called in console during development
 if (process.env.NODE_ENV === 'development') {
@@ -34,9 +34,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Add APIs
-app.use('/api/users', userRouter);
+app.use('/api/', userRouter);
 app.use('/api/auth', authRouter);
-app.use('/api/markers', markerRouter);
+app.use('/api/', markerRouter);
 
 // Print API errors
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

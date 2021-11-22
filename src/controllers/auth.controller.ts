@@ -1,18 +1,25 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import UserModel from '../models/user/UserModel';
-import { ResponseStatus } from '../shared/constants';
-import { wait } from '../shared/utils';
+import { paramMissingError, ResponseStatus } from '../shared/constants';
 import createError from 'http-errors';
+
+const { BAD_REQUEST, OK } = StatusCodes;
 
 export const authController = {
   signIn: async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
 
-      const user = await UserModel.findOne({ email: email }).populate(
-        'markers'
-      );
+      if (!email || !password) {
+        return res.status(BAD_REQUEST).json({
+          error: paramMissingError,
+        });
+      }
+
+      const user = await UserModel.findOne({
+        email: String(email).toLowerCase(),
+      }).populate('markers');
 
       if (!user) {
         const error = new createError.NotFound('User not found');
@@ -33,8 +40,14 @@ export const authController = {
     try {
       const { email, username, name, family_name, email_verified } = req.body;
 
+      if (!email || !username || !name || !family_name || !email_verified) {
+        return res.status(BAD_REQUEST).json({
+          error: paramMissingError,
+        });
+      }
+
       const user = new UserModel({
-        email,
+        email: String(email).toLowerCase(),
         name,
         username,
         family_name,
@@ -55,14 +68,14 @@ export const authController = {
           },
         });
       }
-      return res.status(StatusCodes.OK).json({ success: true, data: result });
+      return res
+        .status(StatusCodes.OK)
+        .json({ status: ResponseStatus.SUCCESS, data: result });
     } catch (error) {
       return res.status(400).json({ error });
     }
   },
-  signOut: async (req: Request, res: Response) => {
-    // do something...
-    await wait(500);
-    return res.status(StatusCodes.OK);
+  signOut: (req: Request, res: Response) => {
+    return res.status(StatusCodes.OK).end();
   },
 };

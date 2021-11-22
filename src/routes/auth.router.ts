@@ -6,6 +6,6 @@ const authRouter: Router = Router();
 
 authRouter.post('/sign-in', asyncMiddleware(authController.signIn));
 authRouter.post('/sign-up', asyncMiddleware(authController.signUp));
-authRouter.get('/sign-out', asyncMiddleware(authController.signOut));
+authRouter.get('/sign-out', authController.signOut);
 
 export default authRouter;

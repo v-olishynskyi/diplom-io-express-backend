@@ -43,6 +43,68 @@ export const userControllers = {
       res.status(500).json({ status: ResponseStatus.FAILED, error });
     }
   },
+  getUserByEmail: async (req: Request, res: Response) => {
+    try {
+      const { email } = req.params;
+
+      if (!email) {
+        return res.status(BAD_REQUEST).json({
+          error: paramMissingError,
+        });
+      }
+
+      const user = await UserModel.findOne({
+        email: String(email).toLowerCase(),
+      }).populate('markers');
+
+      if (!user) {
+        return res.status(400).json({
+          status: ResponseStatus.FAILED,
+          error: {
+            code: 400,
+            message: 'User not found',
+          },
+        });
+      }
+
+      return res
+        .status(OK)
+        .json({ status: ResponseStatus.SUCCESS, data: { user } });
+    } catch (error) {
+      res.status(500).json({ status: ResponseStatus.FAILED, error });
+    }
+  },
+  getUserByUsername: async (req: Request, res: Response) => {
+    try {
+      const { username } = req.params;
+
+      if (!username) {
+        return res.status(BAD_REQUEST).json({
+          error: paramMissingError,
+        });
+      }
+
+      const user = await UserModel.findOne({
+        username: String(username),
+      }).populate('markers');
+
+      if (!user) {
+        return res.status(400).json({
+          status: ResponseStatus.FAILED,
+          error: {
+            code: 400,
+            message: 'User not found',
+          },
+        });
+      }
+
+      return res
+        .status(OK)
+        .json({ status: ResponseStatus.SUCCESS, data: { user } });
+    } catch (error) {
+      res.status(500).json({ status: ResponseStatus.FAILED, error });
+    }
+  },
   // getOneUserByFilter: async (req: Request, res: Response) => {
   //   try {
   //     const { filter } = req.query;
@@ -70,7 +132,7 @@ export const userControllers = {
   //     res.status(500).json({ status: ResponseStatus.FAILED, error });
   //   }
   // },
-  editUser: async (req: Request, res: Response) => {
+  update: async (req: Request, res: Response) => {
     try {
       const { user } = req.body;
 
@@ -93,7 +155,7 @@ export const userControllers = {
       return res.status(500).json({ status: ResponseStatus.FAILED, error });
     }
   },
-  deleteUserById: async (req: Request, res: Response) => {
+  delete: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
 
