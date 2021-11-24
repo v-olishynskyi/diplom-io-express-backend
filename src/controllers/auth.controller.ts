@@ -9,9 +9,9 @@ const { BAD_REQUEST, OK } = StatusCodes;
 export const authController = {
   signIn: async (req: Request, res: Response) => {
     try {
-      const { email, password } = req.body;
+      const { email } = req.body;
 
-      if (!email || !password) {
+      if (!email) {
         return res.status(BAD_REQUEST).json({
           error: paramMissingError,
         });

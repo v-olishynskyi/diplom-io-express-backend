@@ -8,10 +8,39 @@ const { BAD_REQUEST, OK } = StatusCodes;
 
 export const userControllers = {
   getAllUsers: async (req: Request, res: Response) => {
+    const per_page = 10;
+    let page = 1;
+    if (
+      typeof req?.query?.page === "string" &&
+      Number.parseInt(req?.query?.page)
+    ) {
+      page = Number.parseInt(req.query.page);
+    }
     try {
-      const users = await UserModel.find().populate('markers');
+      // const users = await UserModel.find().populate('markers');
+      const model = UserModel;
+      const usersItems = await model
+        .find()
+        .limit(per_page)
+        .skip(per_page * (page - 1));
+      const usersItemsCount = await model.countDocuments().exec();
 
-      return res.status(OK).json({ users });
+      const pager = {
+        count: usersItems.length,
+        total: usersItemsCount,
+        per_page,
+        page: page,
+        pages: Math.ceil(usersItemsCount / per_page),
+      };
+
+      return res.status(OK).json({
+        status: "success",
+        data: usersItems,
+        meta: {
+          pager,
+        },
+      });
+
     } catch (error) {
       res.status(500).json({ status: ResponseStatus.FAILED, error });
     }
