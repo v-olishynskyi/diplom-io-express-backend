@@ -73,7 +73,9 @@ export const MarkerController = {
         });
       }
 
-      return res.status(OK).json({ marker });
+      return res
+        .status(OK)
+        .json({ status: ResponseStatus.SUCCESS, data: { marker } });
     } catch (error) {
       res.status(500).json({
         status: ResponseStatus.FAILED,
@@ -83,9 +85,9 @@ export const MarkerController = {
   },
   create: async (req: Request, res: Response) => {
     try {
-      const { latitude, longitude, name, description, owner } = req.body;
+      const { latitude, longitude, name, description, ownerID } = req.body;
 
-      if (!latitude || !longitude || !name || !owner) {
+      if (!latitude || !longitude || !name || !ownerID) {
         return res.status(BAD_REQUEST).json({
           error: paramMissingError,
         });
@@ -96,15 +98,24 @@ export const MarkerController = {
         longitude,
         name,
         description,
-        owner,
+        owner: ownerID,
       });
       const result = await marker.save();
 
-      await UserModel.findByIdAndUpdate(owner, {
-        $push: { markers: result.id },
-      });
+      const user = await UserModel.findByIdAndUpdate(
+        ownerID,
+        {
+          $push: { markers: result.id },
+        },
+        { new: true, populate: 'markers' }
+      );
 
-      return res.status(CREATED).send({ status: "success", data: result });
+      // @ts-ignore
+      result.owner = user;
+
+      return res
+        .status(CREATED)
+        .send({ status: 'success', data: { marker: result } });
     } catch (error) {
       return res.status(500).json({ status: ResponseStatus.FAILED, error });
     }
@@ -119,15 +130,19 @@ export const MarkerController = {
         });
       }
 
-      const marker = await MarkerModel.findByIdAndUpdate(id, {
-        $set: {
-          latitude,
-          longitude,
-          name,
-          description,
-          owner,
+      const marker = await MarkerModel.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            latitude,
+            longitude,
+            name,
+            description,
+            owner,
+          },
         },
-      });
+        { new: true, populate: 'owner' }
+      );
 
       if (!marker) {
         return res.status(404).json({
@@ -139,7 +154,7 @@ export const MarkerController = {
         });
       }
 
-      return res.status(OK).json({ status: "success" });
+      return res.status(OK).json({ status: 'success', data: { marker } });
     } catch (error) {
       res.status(500).json({
         status: ResponseStatus.FAILED,

@@ -1,5 +1,4 @@
-import { model } from 'mongoose';
-import { Schema, Types } from 'mongoose';
+import { Schema, Types, Document, model } from 'mongoose';
 import { IUser } from '../../@types';
 
 const userSchema = new Schema<IUser>(
@@ -20,6 +19,6 @@ const userSchema = new Schema<IUser>(
   { collection: 'users', timestamps: true }
 );
 
-const UserModel = model('User', userSchema);
+const UserModel = model<IUser & Document>('User', userSchema);
 
 export default UserModel;
