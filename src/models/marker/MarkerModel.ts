@@ -1,5 +1,4 @@
-import { model } from 'mongoose';
-import { Schema, Types } from 'mongoose';
+import { model, Schema, Types, Document } from 'mongoose';
 import { IMarker } from '../../@types';
 
 const markerSchema = new Schema<IMarker>(

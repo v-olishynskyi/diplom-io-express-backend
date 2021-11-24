@@ -16,6 +16,34 @@ export const userControllers = {
       res.status(500).json({ status: ResponseStatus.FAILED, error });
     }
   },
+  getUsersByFilter: async (req: Request, res: Response) => {
+    try {
+      const { filter } = req.query;
+
+      if (!filter) {
+        return res.status(BAD_REQUEST).json({
+          error: paramMissingError,
+        });
+      }
+
+      // @ts-ignore
+      const user = await UserModel.find(filter).populate('markers');
+
+      if (!user) {
+        return res.status(400).json({
+          status: ResponseStatus.FAILED,
+          error: {
+            code: 400,
+            message: 'User not found',
+          },
+        });
+      }
+
+      return res.status(OK).json({ user });
+    } catch (error) {
+      res.status(500).json({ status: ResponseStatus.FAILED, error });
+    }
+  },
   getUserById: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -26,7 +54,15 @@ export const userControllers = {
         });
       }
 
-      const user = await UserModel.findById(id).populate('markers');
+      const user = await UserModel.findById(id).populate([
+        {
+          path: 'markers',
+          populate: {
+            path: 'owner',
+            model: 'User',
+          },
+        },
+      ]);
 
       if (!user) {
         return res.status(400).json({
@@ -55,7 +91,15 @@ export const userControllers = {
 
       const user = await UserModel.findOne({
         email: String(email).toLowerCase(),
-      }).populate('markers');
+      }).populate([
+        {
+          path: 'markers',
+          populate: {
+            path: 'owner',
+            model: 'User',
+          },
+        },
+      ]);
 
       if (!user) {
         return res.status(400).json({
@@ -105,33 +149,6 @@ export const userControllers = {
       res.status(500).json({ status: ResponseStatus.FAILED, error });
     }
   },
-  // getOneUserByFilter: async (req: Request, res: Response) => {
-  //   try {
-  //     const { filter } = req.query;
-
-  //     if (!filter) {
-  //       return res.status(BAD_REQUEST).json({
-  //         error: paramMissingError,
-  //       });
-  //     }
-
-  //     const user = await UserModel.find(filter).populate('markers');
-
-  //     if (!user) {
-  //       return res.status(400).json({
-  //         status: ResponseStatus.FAILED,
-  //         error: {
-  //           code: 400,
-  //           message: 'User not found',
-  //         },
-  //       });
-  //     }
-
-  //     return res.status(OK).json({ user });
-  //   } catch (error) {
-  //     res.status(500).json({ status: ResponseStatus.FAILED, error });
-  //   }
-  // },
   update: async (req: Request, res: Response) => {
     try {
       const { user } = req.body;
