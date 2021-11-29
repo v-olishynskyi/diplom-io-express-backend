@@ -52,6 +52,7 @@ export const authController = {
         username,
         family_name,
         email_verified,
+        isAdmin: false,
       });
 
       const result = await user.save();

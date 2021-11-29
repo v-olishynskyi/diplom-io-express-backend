@@ -16,6 +16,7 @@ export interface IUser {
 
   gender: Gender;
   email_verified: boolean;
+  isAdmin: boolean;
 }
 export interface IMarker {
   latitude: number;

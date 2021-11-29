@@ -15,6 +15,7 @@ const userSchema = new Schema<IUser>(
     email_verified: { type: Boolean },
     // @ts-ignore
     markers: [{ type: Types.ObjectId, ref: 'Marker' }],
+    isAdmin: Boolean,
   },
   { collection: 'users', timestamps: true }
 );
