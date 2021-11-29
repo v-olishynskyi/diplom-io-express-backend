@@ -11,7 +11,7 @@ markerRouter.get(
 );
 markerRouter.get('/markers/:id', asyncMiddleware(MarkerController.find));
 markerRouter.post('/markers/', asyncMiddleware(MarkerController.create));
-markerRouter.patch('/markers/:id', asyncMiddleware(MarkerController.update));
+markerRouter.put('/markers/:id', asyncMiddleware(MarkerController.update));
 markerRouter.delete('/markers/:id', asyncMiddleware(MarkerController.delete));
 
 export default markerRouter;

@@ -11,7 +11,7 @@ export const userControllers = {
     const per_page = 10;
     let page = 1;
     if (
-      typeof req?.query?.page === "string" &&
+      typeof req?.query?.page === 'string' &&
       Number.parseInt(req?.query?.page)
     ) {
       page = Number.parseInt(req.query.page);
@@ -34,13 +34,12 @@ export const userControllers = {
       };
 
       return res.status(OK).json({
-        status: "success",
+        status: 'success',
         data: usersItems,
         meta: {
           pager,
         },
       });
-
     } catch (error) {
       res.status(500).json({ status: ResponseStatus.FAILED, error });
     }
@@ -198,6 +197,8 @@ export const userControllers = {
         .status(OK)
         .json({ status: ResponseStatus.SUCCESS, data: { user: newUser } });
     } catch (error) {
+      console.log('error', error);
+
       return res.status(500).json({ status: ResponseStatus.FAILED, error });
     }
   },
