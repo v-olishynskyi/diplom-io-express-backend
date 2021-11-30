@@ -21,6 +21,10 @@ const markerSchema = new Schema<IMarker>(
       type: Types.ObjectId,
       ref: 'User',
     },
+    category: {
+      type: Types.ObjectId,
+      ref: 'Category',
+    },
   },
   { collection: 'markers', timestamps: true }
 );

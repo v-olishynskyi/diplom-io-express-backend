@@ -10,6 +10,7 @@ import logger from './shared/Logger';
 import userRouter from './routes/user.router';
 import authRouter from './routes/auth.router';
 import markerRouter from './routes/marker.router';
+import catetoryRouter from './routes/category.router';
 
 const app = express();
 const { BAD_REQUEST } = StatusCodes;
@@ -37,6 +38,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use('/api/', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/', markerRouter);
+app.use('/api/', catetoryRouter);
 
 // Print API errors
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

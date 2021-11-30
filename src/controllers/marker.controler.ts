@@ -4,16 +4,39 @@ import { Request, Response } from 'express';
 import { paramMissingError, ResponseStatus } from '../shared/constants';
 import UserModel from '../models/user/UserModel';
 import MarkerModel from '../models/marker/MarkerModel';
+import { CategoryModel } from '../models/category/CategoryModel';
 
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
 export const MarkerController = {
-  all: async (req: Request, res: Response) => {
-    const markers = await MarkerModel.find().populate('owner');
-    return res.json({
-      status: 'success',
-      data: { markers },
-    });
+  get: async (req: Request, res: Response) => {
+    try {
+      const filter = req.query;
+      console.log('filter', filter);
+
+      const markers = await MarkerModel.find(filter).populate('owner category');
+
+      console.log('markers', markers);
+
+      if (!markers) {
+        return res.status(404).json({
+          status: ResponseStatus.FAILED,
+          error: {
+            code: 404,
+            message: 'Markers not found',
+          },
+        });
+      }
+
+      return res
+        .status(OK)
+        .json({ status: ResponseStatus.SUCCESS, data: { markers } });
+    } catch (error) {
+      res.status(500).json({
+        status: ResponseStatus.FAILED,
+        error,
+      });
+    }
   },
   allWithPagination: async (req: Request, res: Response) => {
     const per_page = 10;
@@ -51,7 +74,7 @@ export const MarkerController = {
       res.status(500).json({ status: ResponseStatus.FAILED, error });
     }
   },
-  find: async (req: Request, res: Response) => {
+  findById: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
 
@@ -61,7 +84,7 @@ export const MarkerController = {
         });
       }
 
-      const marker = await MarkerModel.findById(id).populate('owner');
+      const marker = await MarkerModel.findById(id).populate('owner category');
 
       if (!marker) {
         return res.status(404).json({
@@ -85,9 +108,10 @@ export const MarkerController = {
   },
   create: async (req: Request, res: Response) => {
     try {
-      const { latitude, longitude, name, description, ownerID } = req.body;
+      const { latitude, longitude, name, description, ownerID, categoryID } =
+        req.body;
 
-      if (!latitude || !longitude || !name || !ownerID) {
+      if (!latitude || !longitude || !name || !ownerID || !categoryID) {
         return res.status(BAD_REQUEST).json({
           error: paramMissingError,
         });
@@ -99,6 +123,7 @@ export const MarkerController = {
         name,
         description,
         owner: ownerID,
+        category: categoryID,
       });
       const result = await marker.save();
 
@@ -109,9 +134,12 @@ export const MarkerController = {
         },
         { new: true, populate: 'markers' }
       );
+      const category = await CategoryModel.findById(categoryID);
 
       // @ts-ignore
       result.owner = user;
+      // @ts-ignore
+      result.category = category;
 
       return res
         .status(CREATED)
@@ -141,7 +169,7 @@ export const MarkerController = {
             owner,
           },
         },
-        { new: true, populate: 'owner' }
+        { new: true, populate: 'owner category' }
       );
 
       if (!marker) {

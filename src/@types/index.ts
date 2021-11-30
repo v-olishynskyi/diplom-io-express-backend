@@ -32,3 +32,9 @@ export interface IMarker {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ICategory {
+  label: string;
+  value: string;
+  isAccept: boolean;
+}
