@@ -12,11 +12,8 @@ export const MarkerController = {
   get: async (req: Request, res: Response) => {
     try {
       const filter = req.query;
-      console.log('filter', filter);
 
       const markers = await MarkerModel.find(filter).populate('owner category');
-
-      console.log('markers', markers);
 
       if (!markers) {
         return res.status(404).json({
