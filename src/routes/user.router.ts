@@ -4,7 +4,7 @@ import { asyncMiddleware } from '../middlewares/asyncMiddleware';
 
 const userRouter: Router = Router();
 
-userRouter.get('/users/', asyncMiddleware(userControllers.getAllUsers));
+userRouter.get('/users', asyncMiddleware(userControllers.getAllUsers));
 userRouter.get('/users/:id', asyncMiddleware(userControllers.getUserById));
 userRouter.get(
   '/users/get-user-by-email/:email',
